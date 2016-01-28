@@ -1,4 +1,4 @@
-
+﻿
 import random
 import math
 import numpy as np
@@ -247,6 +247,7 @@ class Cop(Agent):
      
         # # zwalnianie opuszczonego pola
         self.country.occupied_fields[old_loc] = Agent(self.country,-1, old_loc)
+        
         return True
 
     def update_agent(self, record_data = False):
@@ -254,9 +255,19 @@ class Cop(Agent):
         Ta metoda odpowiada za aktualizowanie wszystkich atrybutow agenta i 
         przeprowadzanie przez niego czynnosci.
         """
-         # ustawmy flage na brak aresztowania
+         # ustawmy flage aresztowania
+         # obecnie nie jest uzywana ale klasa statisticsOffice uzywa tego do zbierania danych
+         # narazie ta klasa nie jest uzywana ale to zostawiam
         self.made_arrest = self.arrest_active_citizen()
+        if record_data:
+            self.record_data(self.made_arrest)
+
+
+
         self.move_agent()
 
-
-
+    # override
+    def record_data(self, made_arrest):        
+        self.country.statistics.iloc[
+            -1, self.country.statistics.columns.get_loc("n_arrests")] += int(made_arrest)
+        

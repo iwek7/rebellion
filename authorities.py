@@ -82,7 +82,8 @@ class Prison():
 
                 del self.prisoners[i]
             else:
-                self.prisoners[i].record_data()
+                if record_data:
+                    self.prisoners[i].record_data()
         return prisoners_to_go
 
 class Country():
@@ -155,8 +156,6 @@ class Country():
             yield i
             i += 1
 
-
-
     def plot(self):
         """Metoda odpowiedzialna za wizualizacje modelu."""    
         self.update_plot_data()
@@ -192,7 +191,7 @@ class Country():
                     [0 for stat in range(len(self.column_names))])
 
             # obsluzenie wiezienia
-            freed_prisoners = self.prison.get_leaving_prisoners()
+            freed_prisoners = self.prison.get_leaving_prisoners(record_data)
             # umieszczenie wolnych citizenow na dostepnych polach
             for prisoner in freed_prisoners:
                 prisoner.location = self.get_free_location()
@@ -207,7 +206,8 @@ class Country():
                     
             if visualize:
                 self.plot()
-            print(self.statistics.tail(2))
+            # print(self.statistics.tail(1))
+            
 
 dim = 30
 frac_cops = 0.04
@@ -218,7 +218,7 @@ c = Country(
         math.floor(frac_cops * dim * dim), 
         100
         )
-c.run(True, True)
+c.run(record_data = True, visualize = False)
 # c.statistics_office.export_data("test_data.csv")
 
 
