@@ -85,12 +85,27 @@ class Agent():
         self.country.occupied_fields[old_loc] = Agent(self.country, -1, old_loc)
         
   
-    def update_agent(self):
+    def update_agent(self, record_data = False):
         """
         Definicja do zmiany przez dziedziczace klasy.
         Ta metoda odpowiada za aktualizowanie wszystkich atrybutow agenta.
+        
         """
         pass
+
+    def record_data(self):
+        """Citizen dodaje swoje statystyki do dataframe ze statystykami obiektu country."""
+
+        if self.jailed == True:
+            self.country.statistics.iloc[
+                -1, self.country.statistics.columns.get_loc("n_prisoners")] += 1
+        if self.jailed == False and self.my_type == self.agent_type["ActiveCitizen"]:
+            self.country.statistics.iloc[
+                -1, self.country.statistics.columns.get_loc("n_active_agents")] += 1
+        if self.jailed == False and self.my_type == self.agent_type["PassiveCitizen"]:
+            self.country.statistics.iloc[
+                -1, self.country.statistics.columns.get_loc("n_passive_agents")] += 1
+
 
 class Citizen(Agent):
     """
@@ -167,12 +182,16 @@ class Citizen(Agent):
             self.my_type = self.agent_type["PassiveCitizen"]
         
     # parametr count_arrests nic nie robi tutaj, robi w copie
-    def update_agent(self):
+    def update_agent(self, record_data = False):
         """
         Metoda odpowiedzialna za aktualizowanie wszystkich atrybutow agenta.
         """
+        super().update_agent(record_data)
+
         self.update_rebel_state()
         self.move_agent()
+        if record_data:
+            self.record_data()
 
 
 class Cop(Agent):
@@ -230,7 +249,7 @@ class Cop(Agent):
         self.country.occupied_fields[old_loc] = Agent(self.country,-1, old_loc)
         return True
 
-    def update_agent(self):
+    def update_agent(self, record_data = False):
         """
         Ta metoda odpowiada za aktualizowanie wszystkich atrybutow agenta i 
         przeprowadzanie przez niego czynnosci.

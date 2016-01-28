@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from statisticsOffice import StatisticsOffice
 from gridplot import GridPlot
-
+import pandas as pd
 
 # Model Rebellion
 # http://ccl.northwestern.edu/netlogo/models/Rebellion
@@ -81,7 +81,8 @@ class Prison():
                 prisoners_to_go.append(self.prisoners[i])
 
                 del self.prisoners[i]
-                
+            else:
+                self.prisoners[i].record_data()
         return prisoners_to_go
 
 class Country():
@@ -97,7 +98,7 @@ class Country():
         """
         self.government = Government(.82)
         self.prison = Prison()
-        self.statistics_office = StatisticsOffice()
+        # self.statistics_office = StatisticsOffice()
         # lista pol zajetych
         # tuple : referencja do obiektu
         # inicjalizacja pustej przestrzeni
@@ -119,6 +120,11 @@ class Country():
         # zmienne do wizualizacji symulacji
         self.plot_data = np.zeros((self.dimension,self.dimension))
         self.id_generator =  self.create_id_generaor(start_id = 1)
+
+        # kolekcjonowanie danych symulacji
+        self.column_names = ["n_active_agents", "n_passive_agents", "n_prisoners", "n_arrests"]
+        self.statistics = pd.DataFrame(columns = self.column_names)
+
 
     def get_free_location(self, search_for_nones = False):
         """Zwraca wolna lokalizacje."""
@@ -179,6 +185,12 @@ class Country():
         self.initialize_simulation(visualize)
 
         for i in range(self.max_iterations):
+
+            # dodanie nowego wiersza z danymi z zerami
+            if record_data:
+                self.statistics.loc[len(self.statistics)] = (
+                    [0 for stat in range(len(self.column_names))])
+
             # obsluzenie wiezienia
             freed_prisoners = self.prison.get_leaving_prisoners()
             # umieszczenie wolnych citizenow na dostepnych polach
@@ -186,21 +198,16 @@ class Country():
                 prisoner.location = self.get_free_location()
                 self.occupied_fields[prisoner.location] = prisoner
             
+                 
 
             for agent in self.occupied_fields:
                 if self.occupied_fields[agent].my_type != 0:
                     ag = self.occupied_fields[agent]
-                    ag.update_agent()
-                    if record_data:
-                        self.statistics_office.log_citizen(ag, i)
-            
-            # if record_data:
-            #    for prisoner in self.prison.prisoners:
-            #        self.statistics_office.log_citizen(prisoner, i)
-
+                    ag.update_agent(record_data)
+                    
             if visualize:
                 self.plot()
-            print(i)
+            print(self.statistics.tail(2))
 
 dim = 30
 frac_cops = 0.04
@@ -211,7 +218,7 @@ c = Country(
         math.floor(frac_cops * dim * dim), 
         100
         )
-c.run(False, False)
+c.run(True, True)
 # c.statistics_office.export_data("test_data.csv")
 
 
