@@ -2,7 +2,7 @@ from agents import Agent, Cop, Citizen
 import pandas as pd
 
 # tworzy tabele z danymi do dalszej analizy
-
+#sss
 class StatisticsOffice():
 
     def __init__(self, simulation_id = 1):
