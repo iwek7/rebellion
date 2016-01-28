@@ -123,9 +123,11 @@ class Country():
         self.id_generator =  self.create_id_generaor(start_id = 1)
 
         # kolekcjonowanie danych symulacji
-        self.column_names = ["n_active_agents", "n_passive_agents", "n_prisoners", "n_arrests"]
+        self.column_names = ["n_active_agents", "n_passive_agents", "n_prisoners", "n_arrests", "rebellion"]
         self.statistics = pd.DataFrame(columns = self.column_names)
 
+        # od tej wartosci uznajemy ze jest rebelia
+        self.rebelion_cutoff = 50
 
     def get_free_location(self, search_for_nones = False):
         """Zwraca wolna lokalizacje."""
@@ -203,9 +205,14 @@ class Country():
                 if self.occupied_fields[agent].my_type != 0:
                     ag = self.occupied_fields[agent]
                     ag.update_agent(record_data)
-                    
+
+            if record_data == True and self.statistics.tail(1)[["n_active_agents"]].values[0] >= self.rebelion_cutoff:
+                self.statistics.iloc[
+                -1, self.statistics.columns.get_loc("rebellion")] = 1
+                       
             if visualize:
                 self.plot()
+
             # print(self.statistics.tail(1))
             
 
@@ -216,13 +223,14 @@ c = Country(
         dim, 
         math.floor(frac_citizens * dim * dim), 
         math.floor(frac_cops * dim * dim), 
-        100
+        10000
         )
 c.run(record_data = True, visualize = False)
 # c.statistics_office.export_data("test_data.csv")
 
 
 
-
+#c.statistics.to_csv("C:/Users/Michal/Documents/Visual Studio 2013/Projects/Rebellion/Rebellion/data.csv", 
+#                    cols = c.column_names)
 
 
