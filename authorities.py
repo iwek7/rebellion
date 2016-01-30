@@ -125,7 +125,23 @@ class Country():
         self.id_generator =  self.create_id_generaor(start_id = 1)
 
         # kolekcjonowanie danych symulacji
-        self.column_names = ["n_active_agents", "n_passive_agents", "n_prisoners", "n_arrests", "rebellion"]
+        self.column_names = ["n_active_agents", 
+                             "n_passive_agents", 
+                             "n_prisoners",
+                             "n_arrests", 
+                             # statystyki wiezniow
+                             "total_prison_grievance",
+                             "total_prison_preceived_hardship",
+                             "total_prison_risk_aversion",
+                             # statystyki butnownikow
+                             "total_actives_grievance",
+                             "total_actives_preceived_hardship",
+                             "total_actives_risk_aversion",
+                             # statystyki niezbutnowanych obywateli
+                             "total_passives_grievance",
+                             "total_passives_preceived_hardship",
+                             "total_passives_risk_aversion",
+                             ]
         self.statistics = pd.DataFrame(columns = self.column_names)
 
         # od tej wartosci uznajemy ze jest rebelia
@@ -202,15 +218,11 @@ class Country():
                 if self.occupied_fields[agent].my_type != 0:
                     ag = self.occupied_fields[agent]
                     ag.update_agent(record_data)
-
-            if record_data == True and self.statistics.tail(1)[["n_active_agents"]].values[0] >= self.rebelion_cutoff:
-                self.statistics.iloc[
-                -1, self.statistics.columns.get_loc("rebellion")] = 1
                        
             if visualize:
                 self.plot()
 
-            # print(self.statistics.tail(1))
+            print(i)
             
 
 dim = 30
@@ -222,12 +234,12 @@ c = Country(
         math.floor(frac_cops * dim * dim), 
         100
         )
-c.run(record_data = False, visualize = True)
+c.run(record_data = True, visualize = False)
 # c.statistics_office.export_data("test_data.csv")
 
 
 
-#c.statistics.to_csv("C:/Users/Michal/Documents/Visual Studio 2013/Projects/Rebellion/Rebellion/data.csv", 
-#                    cols = c.column_names)
+c.statistics.to_csv("C:/Users/Michal/Documents/Visual Studio 2013/Projects/Rebellion/Rebellion/data.csv", 
+                   cols = c.column_names)
 
 
