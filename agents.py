@@ -19,7 +19,8 @@ class Agent():
         self.agent_type = { "None": 0 ,
                             "ActiveCitizen" : 1, 
                             "PassiveCitizen" : 2,
-                            "Cop" : 3
+                            "Cop" : 3,
+                            "Prisoner" : 4
                             }
         # w klasach, ktore dziedzicza jest robiony override tego
         self.my_type = self.agent_type["None"]
@@ -37,7 +38,7 @@ class Agent():
 
         # Flagi dla poszczegolnych typow citizenow
         # inicjowane puste
-        self.jailed = False
+ 
         self.sentence_total = None
         self.sentence_left = None
         self.made_arrest = None  
@@ -96,7 +97,7 @@ class Agent():
     def record_data(self):
         """Citizen dodaje swoje statystyki do dataframe ze statystykami obiektu country."""
 
-        if self.jailed == True:
+        if  self.my_type == self.agent_type["Prisoner"]:
             # dodanie do liczby wiezniow
             self.country.statistics.iloc[
                 -1, self.country.statistics.columns.get_loc("n_prisoners")] += 1
@@ -110,7 +111,7 @@ class Agent():
                 -1, self.country.statistics.columns.get_loc("total_prison_risk_aversion")] += self.risk_aversion
 
 
-        if self.jailed == False and self.my_type == self.agent_type["ActiveCitizen"]:
+        if self.my_type == self.agent_type["ActiveCitizen"]:
 
             # dodanie liczebnosci aktywnych agentow
             self.country.statistics.iloc[
@@ -118,23 +119,29 @@ class Agent():
 
             # dodanie wielkosci parametrow
             self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_actives_grievance")] += self.grievance
+                -1, self.country.statistics.columns.get_loc("total_actives_grievance")
+                ] += self.grievance
             self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_actives_preceived_hardship")] += self.perceived_hardship
+                -1, self.country.statistics.columns.get_loc("total_actives_preceived_hardship")
+                ] += self.perceived_hardship
             self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_actives_risk_aversion")] += self.risk_aversion
+                -1, self.country.statistics.columns.get_loc("total_actives_risk_aversion")
+                ] += self.risk_aversion
 
-        if self.jailed == False and self.my_type == self.agent_type["PassiveCitizen"]:
+        if self.my_type == self.agent_type["PassiveCitizen"]:
             # dodanie liczby pasywnych agentow
             self.country.statistics.iloc[
                 -1, self.country.statistics.columns.get_loc("n_passive_agents")] += 1
             # dodanie wielkosci parametrow
             self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_passives_grievance")] += self.grievance
+                -1, self.country.statistics.columns.get_loc("total_passives_grievance")
+                ] += self.grievance
             self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_passives_preceived_hardship")] += self.perceived_hardship
+                -1, self.country.statistics.columns.get_loc("total_passives_preceived_hardship")
+                ] += self.perceived_hardship
             self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_passives_risk_aversion")] += self.risk_aversion
+                -1, self.country.statistics.columns.get_loc("total_passives_risk_aversion")
+                ] += self.risk_aversion
 
 
 class Citizen(Agent):
@@ -255,10 +262,10 @@ class Cop(Agent):
             ]
         # wybranie obywatela do aresztowania
         if len(actives_in_vision) == 0:
-            return False
+            return False # brak aktywnych obywateli w polu widzenia
         arrested = random.choice(actives_in_vision)
         # aresztowanie Citizena
-        self.country.occupied_fields[arrested].jailed = True
+        self.country.occupied_fields[arrested].my_type = self.agent_type["Prisoner"]
         # policjant wyznacza wyrok
         self.country.occupied_fields[arrested].sentence_total = (
                 random.choice(self.country.government.rebel_jail_time)      
