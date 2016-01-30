@@ -120,6 +120,8 @@ class Country():
         
         # zmienne do wizualizacji symulacji
         self.plot_data = np.zeros((self.dimension,self.dimension))
+
+
         self.id_generator =  self.create_id_generaor(start_id = 1)
 
         # kolekcjonowanie danych symulacji
@@ -143,12 +145,9 @@ class Country():
 
     def update_plot_data(self):
         # agent w tej iteracji to tuple
-
-        # jesli znajduje sie agent to go wstawiamy, inaczej wstawiamy 0
-        # jest to konieczne bo nie ma agenta typu pusty
+        # dodajemy
         for x in range(self.dimension):
             for y in range(self.dimension):
-                if (x,y) in self.occupied_fields:
                     self.plot_data[(x,y)] = self.occupied_fields[(x,y)].my_type
 
 
@@ -198,9 +197,7 @@ class Country():
             for prisoner in freed_prisoners:
                 prisoner.location = self.get_free_location()
                 self.occupied_fields[prisoner.location] = prisoner
-            
-                 
-
+                           
             for agent in self.occupied_fields:
                 if self.occupied_fields[agent].my_type != 0:
                     ag = self.occupied_fields[agent]
@@ -223,9 +220,9 @@ c = Country(
         dim, 
         math.floor(frac_citizens * dim * dim), 
         math.floor(frac_cops * dim * dim), 
-        10000
+        100
         )
-c.run(record_data = True, visualize = False)
+c.run(record_data = False, visualize = True)
 # c.statistics_office.export_data("test_data.csv")
 
 
