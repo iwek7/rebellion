@@ -125,6 +125,13 @@ class Country():
 
         self.id_generator =  self.create_id_generaor(start_id = 1)
 
+        self.agent_types = {"None": 0 ,
+                    "ActiveCitizen" : 1, 
+                    "PassiveCitizen" : 2,
+                    "Cop" : 3,
+                    "Prisoner" : 4
+                    }
+
         # kolekcjonowanie danych symulacji
         self._column_names = [
                              "number_of_agents", 
@@ -134,21 +141,15 @@ class Country():
                              "total_risk_aversion"                       
                              ]
         self.statistics = {
-                           0 : pd.DataFrame(columns = self._column_names),
-                           1 : pd.DataFrame(columns = self._column_names),
-                           2 : pd.DataFrame(columns = self._column_names),
-                           3 : pd.DataFrame(columns = self._column_names),
-                           4 : pd.DataFrame(columns = self._column_names)
+                            self.agent_types["None"] : pd.DataFrame(columns = self._column_names), # czysto techniczne - w razie czego
+                            self.agent_types["ActiveCitizen"] : pd.DataFrame(columns = self._column_names),
+                            self.agent_types["PassiveCitizen"] : pd.DataFrame(columns = self._column_names),
+                            self.agent_types["Cop"] : pd.DataFrame(columns = self._column_names),
+                            self.agent_types["Prisoner"] : pd.DataFrame(columns = self._column_names)
                            }
 
         
-        self.agent_types = {"None": 0 ,
-                            "ActiveCitizen" : 1, 
-                            "PassiveCitizen" : 2,
-                            "Cop" : 3,
-                            "Prisoner" : 4
-                            }
-
+ 
 
     def get_free_location(self, search_for_nones = False):
         """Zwraca wolna lokalizacje."""
