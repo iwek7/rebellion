@@ -14,16 +14,9 @@ class Agent():
 
         self.country = country
         self.id = id
-        # lista typow agentow
-        # przeniesc inicjacje tego do country
-        self.agent_type = { "None": 0 ,
-                            "ActiveCitizen" : 1, 
-                            "PassiveCitizen" : 2,
-                            "Cop" : 3,
-                            "Prisoner" : 4
-                            }
+
         # w klasach, ktore dziedzicza jest robiony override tego
-        self.my_type = self.agent_type["None"]
+        self.my_type = self.country.agent_types["None"]
         # dziedziczace klasy nadpisza
         # wizje rozumiemy jako odleglosc kratek
         self.vision_range = 0.0
@@ -118,7 +111,7 @@ class Citizen(Agent):
         """ 
         super().__init__(country, id)
         # obiekt musi wiedziec kim jest w spoleczenstwie
-        self.my_type = self.agent_type["PassiveCitizen"]
+        self.my_type = self.country.agent_types["PassiveCitizen"]
 
         # poczucie niesczescia obywatela
         self.perceived_hardship = random.uniform(0, 1)
@@ -149,11 +142,11 @@ class Citizen(Agent):
         visible_agents = self.get_visible_fields()
         cops_in_vision = [loc for loc in visible_agents 
                 if (self.country.occupied_fields[loc].my_type == 
-                                    self.agent_type["Cop"])]
+                                    self.country.agent_types["Cop"])]
 
         actives_in_vision = [loc for loc in visible_agents 
             if (self.country.occupied_fields[loc].my_type ==
-                         self.agent_type["ActiveCitizen"])]
+                         self.country.agent_types["ActiveCitizen"])]
             # + 1 bo wlicza sameo siebie
         return len(cops_in_vision) / float(len(actives_in_vision) + 1)
 
@@ -176,9 +169,9 @@ class Citizen(Agent):
         """
         if (self.grievance - self.calculate_arrest_probability() * self.risk_aversion > 
                                 self.rebel_threshold) == True:
-            self.my_type = self.agent_type["ActiveCitizen"]
+            self.my_type = self.country.agent_types["ActiveCitizen"]
         else:
-            self.my_type = self.agent_type["PassiveCitizen"]
+            self.my_type = self.country.agent_types["PassiveCitizen"]
         
     # parametr count_arrests nic nie robi tutaj, robi w copie
     def update_agent(self, record_data = False):
@@ -205,7 +198,7 @@ class Cop(Agent):
         Inicjowanie zmiennych charakteryzujacych agenta typu cop.
         """
         super().__init__(country, id)
-        self.my_type = self.agent_type["Cop"]
+        self.my_type = self.country.agent_types["Cop"]
         self.vision_range = 6
         # flaga pokazujaca czy cop kogos aresztowal
         self.made_arrest = False
@@ -220,14 +213,14 @@ class Cop(Agent):
         # wybor tylko obywateli typu Citizen z atrybutem active == True
         actives_in_vision = [agent for agent in visible_agents 
             if (self.country.occupied_fields[agent].my_type ==
-                         self.agent_type["ActiveCitizen"])
+                         self.country.agent_types["ActiveCitizen"])
             ]
         # wybranie obywatela do aresztowania
         if len(actives_in_vision) == 0:
             return False # brak aktywnych obywateli w polu widzenia
         arrested = random.choice(actives_in_vision)
         # aresztowanie Citizena
-        self.country.occupied_fields[arrested].my_type = self.agent_type["Prisoner"]
+        self.country.occupied_fields[arrested].my_type = self.country.agent_types["Prisoner"]
         # policjant wyznacza wyrok
         self.country.occupied_fields[arrested].sentence_total = (
                 random.choice(self.country.government.rebel_jail_time)      

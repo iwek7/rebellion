@@ -56,8 +56,9 @@ class Government():
 
 class Prison():
     """Klasa odpowiadajaca za przetrzymywanie wiezniow"""
-    def __init__(self):
+    def __init__(self, country):
         self.prisoners = []
+        self.country = country
 
     def get_leaving_prisoners(self, record_data = False):
         """
@@ -77,7 +78,7 @@ class Prison():
                 self.prisoners[i].sentence_left = 0
                 self.prisoners[i].sentence_total = 0
 
-                self.prisoners[i].my_type = self.prisoners[i].agent_type["PassiveCitizen"]
+                self.prisoners[i].my_type = self.country.agent_types["PassiveCitizen"]
                 prisoners_to_go.append(self.prisoners[i])
 
                 del self.prisoners[i]
@@ -98,7 +99,7 @@ class Country():
 
         """
         self.government = Government(.82)
-        self.prison = Prison()
+        self.prison = Prison(self)
         # self.statistics_office = StatisticsOffice()
         # lista pol zajetych
         # tuple : referencja do obiektu
