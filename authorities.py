@@ -170,7 +170,6 @@ class Country():
             for y in range(self.dimension):
                     self.plot_data[(x,y)] = self.occupied_fields[(x,y)].my_type
 
-
     def create_id_generaor(self, start_id = 1):
         i = start_id
         while True:
@@ -196,8 +195,7 @@ class Country():
         if visualize:
             self.update_plot_data()
             self.gp = GridPlot(self.plot_data,["white","red", "green", "black"])
-        
-    
+            
     def export_statistics(self, path, agents_to_export = list()):
         """
             Eksportowanie statystyk agentow do pliku csv zadanego w zmiennej path
@@ -220,8 +218,7 @@ class Country():
             df_to_export = pd.concat([df_to_export, temp_df])
         
         df_to_export.to_csv(path, columns = export_cols)
-            
-                                     
+                                        
     def run(self, record_data = False, visualize = False):
         """
         Metoda odpowiedzialna za przeprowadzenie symulacji 
@@ -261,9 +258,9 @@ c = Country(
         dim, 
         math.floor(frac_citizens * dim * dim), 
         math.floor(frac_cops * dim * dim), 
-        5
+        10000
         )
-c.run(record_data = False, visualize = False)
-# c.export_statistics(path = "C:/Users/Michal/Documents/Visual Studio 2013/Projects/Rebellion/Rebellion/data.csv")
+c.run(record_data = False, visualize = True)
+c.export_statistics(path = "C:/Users/Michal/Documents/Visual Studio 2013/Projects/Rebellion/Rebellion/data.csv")
 
 

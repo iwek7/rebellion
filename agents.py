@@ -19,7 +19,7 @@ class Agent():
         self.my_type = self.country.agent_types["None"]
         # dziedziczace klasy nadpisza
         # wizje rozumiemy jako odleglosc kratek
-        self.vision_range = 0.0
+        self.vision_range = 6
 
         if location == None:
             self.location = self.country.get_free_location(True)
@@ -35,7 +35,6 @@ class Agent():
         self.sentence_total = None
         self.sentence_left = None
         self.made_arrest = None  
-        self.vision_range = None
         self.risk_aversion = None
         self.grievance = None
         self.perceived_hardship = None
@@ -125,15 +124,15 @@ class Citizen(Agent):
         # stala uzywana przy kalkulowaniu prawd aresztowania
         # pozwala utrzymac sensowne ratio gdy w polu widzena jest tylko jeden
         # Citizen i Cop 
-        self.arrest_const = 2.3 #-math.log(0.1)
-        
+        # self.arrest_const = 2.3 #-math.log(0.1) # chwilowo uzywamy innej formuly
         
         # zmienne okreslajace dlugosc wyroku
         self.sentence_left = 0
         self.sentence_total = 0
-        self.vision_range = 6
-     
- 
+        self.jail_unhappines_param = 0.001
+      
+
+
     def calculate_cops_ratio_in_vision(self):
         """
         Iloraz agentow typu Cop i aktywnych citizen w sasiedztwie tego agenta.
@@ -156,7 +155,6 @@ class Citizen(Agent):
         """
         Kalkulacja prawdopodobienstwa aresztowania na podstawie
         ilosci citizenow, copow i stalej modelu
-
         """
         return int(self.calculate_cops_ratio_in_vision() > 1)       
         # return (1 - math.exp(-self.arrest_const * 
@@ -167,7 +165,10 @@ class Citizen(Agent):
         na podstawie risk_aversion i arrest_prob 
         podejmuje decyzje o przejsciu do stanu rebel
         """
-        if (self.grievance - self.calculate_arrest_probability() * self.risk_aversion > 
+        if (self.grievance - self.calculate_arrest_probability() * 
+                                self.risk_aversion *
+                                max(self.country.government.rebel_jail_time)**self.jail_unhappines_param
+                                > 
                                 self.rebel_threshold) == True:
             self.my_type = self.country.agent_types["ActiveCitizen"]
         else:
@@ -199,7 +200,7 @@ class Cop(Agent):
         """
         super().__init__(country, id)
         self.my_type = self.country.agent_types["Cop"]
-        self.vision_range = 6
+        # self.vision_range = 6
         # flaga pokazujaca czy cop kogos aresztowal
         self.made_arrest = False
 
