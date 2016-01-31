@@ -1,0 +1,4 @@
+# rebellion ignored files
+__pycache__/
+*.pyproj
+*.csv

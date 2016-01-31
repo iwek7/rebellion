@@ -14,6 +14,9 @@ from statisticsOffice import StatisticsOffice
 from gridplot import GridPlot
 import pandas as pd
 
+from government import Government
+from prison import Prison
+
 # Model Rebellion
 # http://ccl.northwestern.edu/netlogo/models/Rebellion
 # autorzy kodu:
@@ -33,59 +36,6 @@ import pandas as pd
 # seeks to suppress the rebellion. The cops wander around randomly and 
 # arrest people who are actively rebelling.
 
-class Government():
-    """
-    Rzad kontroluje panstwo i jego policje (agentow typu Cop)
-    Rzad chce sie za wszelka cene utrzymac przy wladzy i rozkazuje 
-    policjata aresztowac obywateli (agentow typu Citizen).
-    Wizerunek rzadu ma wplyw na sklonnosc 
-    do przechodzenia Citizenow do stanu rebel.
-    Do kometencji rzadu nalezy ustanawianie zasad dzialania policji.
-
-    """
-    def __init__(self, legitimacy):
-        """Inicjacja zasad ustalanych przez rzad i jego charakterystyk."""
-
-        # wspolczynnik poparcia rzadu w spoleczenstwie
-        # waha sie od 0 do 1
-        assert(legitimacy >= 0 and legitimacy <= 1)
-        self.legitimacy = legitimacy
-        # czasy wyrokow odpowiednio dla winnych aresztowanych
-        # wyroki sa losowane z rozkladu jednostajnego
-        self.rebel_jail_time = range(0, 30)
-
-class Prison():
-    """Klasa odpowiadajaca za przetrzymywanie wiezniow"""
-    def __init__(self, country):
-        self.prisoners = []
-        self.country = country
-
-    def get_leaving_prisoners(self, record_data = False):
-        """
-        Usuwa wiezniow, ktorych wyrok uplunal z wiezienia i zwraca ich w liscie.
-        Uwaga! Jesli nie zostana oslozeni przez 
-        obiekt odbierajacy te liste to znikna.
-        """
-        prisoners_to_go = []
-        # iteracja od tylu poniewaz usuwamy elementy w taki a nie innyc sposob
-        for i in reversed(range(len(self.prisoners))): 
-            # zmniejszenie wyroku
-            self.prisoners[i].sentence_left -= 1  
-            if self.prisoners[i].sentence_left <= 0:
-                self.prisoners[i].jailed = False
-
-                # to na potrzeby zbierania statystyk 
-                self.prisoners[i].sentence_left = 0
-                self.prisoners[i].sentence_total = 0
-
-                self.prisoners[i].my_type = self.country.agent_types["PassiveCitizen"]
-                prisoners_to_go.append(self.prisoners[i])
-
-                del self.prisoners[i]
-            else:
-                if record_data:
-                    self.prisoners[i].record_data()
-        return prisoners_to_go
 
 class Country():
     """
