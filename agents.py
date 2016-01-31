@@ -96,52 +96,14 @@ class Agent():
 
     def record_data(self):
         """Citizen dodaje swoje statystyki do dataframe ze statystykami obiektu country."""
-
-        if  self.my_type == self.agent_type["Prisoner"]:
-            # dodanie do liczby wiezniow
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("n_prisoners")] += 1
-
-            # dodanie wielkosci parametrow
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_prison_grievance")] += self.grievance
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_prison_preceived_hardship")] += self.perceived_hardship
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_prison_risk_aversion")] += self.risk_aversion
-
-
-        if self.my_type == self.agent_type["ActiveCitizen"]:
-
-            # dodanie liczebnosci aktywnych agentow
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("n_active_agents")] += 1
-
-            # dodanie wielkosci parametrow
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_actives_grievance")
-                ] += self.grievance
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_actives_preceived_hardship")
-                ] += self.perceived_hardship
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_actives_risk_aversion")
-                ] += self.risk_aversion
-
-        if self.my_type == self.agent_type["PassiveCitizen"]:
-            # dodanie liczby pasywnych agentow
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("n_passive_agents")] += 1
-            # dodanie wielkosci parametrow
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_passives_grievance")
-                ] += self.grievance
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_passives_preceived_hardship")
-                ] += self.perceived_hardship
-            self.country.statistics.iloc[
-                -1, self.country.statistics.columns.get_loc("total_passives_risk_aversion")
-                ] += self.risk_aversion
+        self.country.statistics[self.my_type].iloc[
+                -1, self.country.statistics[self.my_type].columns.get_loc("number_of_agents")] += 1
+        self.country.statistics[self.my_type].iloc[
+                -1, self.country.statistics[self.my_type].columns.get_loc("total_grievance")] += self.grievance
+        self.country.statistics[self.my_type].iloc[
+                -1, self.country.statistics[self.my_type].columns.get_loc("total_preceived_hardship")] += self.perceived_hardship
+        self.country.statistics[self.my_type].iloc[
+                -1, self.country.statistics[self.my_type].columns.get_loc("total_risk_aversion")] += self.risk_aversion
 
 
 class Citizen(Agent):
@@ -305,6 +267,7 @@ class Cop(Agent):
 
     # override
     def record_data(self, made_arrest):        
-        self.country.statistics.iloc[
-            -1, self.country.statistics.columns.get_loc("n_arrests")] += int(made_arrest)
+        self.country.statistics[self.my_type].iloc[
+            -1, self.country.statistics[self.my_type].columns.get_loc(
+                                        "number_of_arrests")] += int(made_arrest) 
         

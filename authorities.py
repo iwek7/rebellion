@@ -125,27 +125,29 @@ class Country():
         self.id_generator =  self.create_id_generaor(start_id = 1)
 
         # kolekcjonowanie danych symulacji
-        self.column_names = ["n_active_agents", 
-                             "n_passive_agents", 
-                             "n_prisoners",
-                             "n_arrests", 
-                             # statystyki wiezniow
-                             "total_prison_grievance",
-                             "total_prison_preceived_hardship",
-                             "total_prison_risk_aversion",
-                             # statystyki butnownikow
-                             "total_actives_grievance",
-                             "total_actives_preceived_hardship",
-                             "total_actives_risk_aversion",
-                             # statystyki niezbutnowanych obywateli
-                             "total_passives_grievance",
-                             "total_passives_preceived_hardship",
-                             "total_passives_risk_aversion",
+        self._column_names = [
+                             "number_of_agents", 
+                             "number_of_arrests", # tylko dla copa uzupelniane
+                             "total_grievance",
+                             "total_preceived_hardship",
+                             "total_risk_aversion"                       
                              ]
-        self.statistics = pd.DataFrame(columns = self.column_names)
+        self.statistics = {
+                           0 : pd.DataFrame(columns = self._column_names),
+                           1 : pd.DataFrame(columns = self._column_names),
+                           2 : pd.DataFrame(columns = self._column_names),
+                           3 : pd.DataFrame(columns = self._column_names),
+                           4 : pd.DataFrame(columns = self._column_names)
+                           }
 
-        # od tej wartosci uznajemy ze jest rebelia
-        self.rebelion_cutoff = 50
+        
+        self.agent_types = {"None": 0 ,
+                            "ActiveCitizen" : 1, 
+                            "PassiveCitizen" : 2,
+                            "Cop" : 3,
+                            "Prisoner" : 4
+                            }
+
 
     def get_free_location(self, search_for_nones = False):
         """Zwraca wolna lokalizacje."""
@@ -193,7 +195,31 @@ class Country():
             self.update_plot_data()
             self.gp = GridPlot(self.plot_data,["white","red", "green", "black"])
         
-                              
+    
+    def export_statistics(self, path, agents_to_export = list()):
+        """
+            Eksportowanie statystyk agentow do pliku csv zadanego w zmiennej path
+            mozemy przekazac liste nazw agentow , ktorych statystyki chcemy
+            defaultowo bierzemy wszystko
+        """
+
+        if len(agents_to_export) <= 0: 
+            agents_to_export = list((self.agent_types.keys()))
+            agents_to_export.remove('None')
+        # sprawdzenie czy lista agentow jest niepusta i czy podani agenci istnieja
+        assert(set(agents_to_export).issubset(set(self.agent_types.keys())))
+        export_cols = ["agent_type"] + self._column_names
+        df_to_export = pd.DataFrame(columns = export_cols)
+        # do kazdego dataframe ze statystykami dopisuje kolumne wypelniona rodzajem agenta
+        # wszystkie dataframy skladam w jeden i potem eksportuje
+        for agent_type in agents_to_export:
+            temp_df = self.statistics[self.agent_types[agent_type]]
+            temp_df["agent_type"] = [agent_type for i in range(len(temp_df))]
+            df_to_export = pd.concat([df_to_export, temp_df])
+        
+        df_to_export.to_csv(path, columns = export_cols)
+            
+                                     
     def run(self, record_data = False, visualize = False):
         """
         Metoda odpowiedzialna za przeprowadzenie symulacji 
@@ -204,8 +230,9 @@ class Country():
 
             # dodanie nowego wiersza z danymi z zerami
             if record_data:
-                self.statistics.loc[len(self.statistics)] = (
-                    [0 for stat in range(len(self.column_names))])
+                for key, dataframe in self.statistics.items():
+                    dataframe.loc[len(dataframe)] = (
+                        [0 for stat in range(len(self._column_names))])
 
             # obsluzenie wiezienia
             freed_prisoners = self.prison.get_leaving_prisoners(record_data)
@@ -218,7 +245,7 @@ class Country():
                 if self.occupied_fields[agent].my_type != 0:
                     ag = self.occupied_fields[agent]
                     ag.update_agent(record_data)
-                       
+                          
             if visualize:
                 self.plot()
 
@@ -232,14 +259,9 @@ c = Country(
         dim, 
         math.floor(frac_citizens * dim * dim), 
         math.floor(frac_cops * dim * dim), 
-        100
+        5
         )
-c.run(record_data = True, visualize = False)
-# c.statistics_office.export_data("test_data.csv")
-
-
-
-c.statistics.to_csv("C:/Users/Michal/Documents/Visual Studio 2013/Projects/Rebellion/Rebellion/data.csv", 
-                   cols = c.column_names)
+c.run(record_data = False, visualize = False)
+# c.export_statistics(path = "C:/Users/Michal/Documents/Visual Studio 2013/Projects/Rebellion/Rebellion/data.csv")
 
 
